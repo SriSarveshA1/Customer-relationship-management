@@ -1,0 +1,27 @@
+{
+  "name": "customer-relationship-mapping",
+  "version": "1.0.0",
+  "description": "This project contains code for the Customer_relationship_mapping application",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SriSarveshA1/Customer_relationship_mapping.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SriSarveshA1/Customer_relationship_mapping/issues"
+  },
+  "homepage": "https://github.com/SriSarveshA1/Customer_relationship_mapping#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.4.6"
+  }
+}

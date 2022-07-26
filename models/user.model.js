@@ -1,5 +1,5 @@
 const mongoose=require('mongoose');//so this mongoose odm is used to create schema and various other things with mongodb
-
+const constants=require('../utils/constants')
 const userSchema=new mongoose.Schema({//so this mongoose.Schema is another object that is used to create schema into which we need to pass the schema
     
     name:{
@@ -38,14 +38,14 @@ const userSchema=new mongoose.Schema({//so this mongoose.Schema is another objec
     userType : {
         type : String,
         required : true,
-        default : "Customer"
-       // enum : [constants.userTypes.customer,constants.userTypes.admin,constants.userTypes.engineer]
+        default :constants.userTypes.customer,
+        enum : [constants.userTypes.customer,constants.userTypes.admin,constants.userTypes.engineer]//so enum is a data type that can have fixed set of values.
     },
     userStatus : {
         type : String,
         required : true,
-        default : "Approved"
-       // enum : [constants.userStatus.approved,constants.userStatus.pending,constants.userStatus.rejected]
+        default :constants.userStatus.approved,
+       enum : [constants.userStatus.approved,constants.userStatus.pending,constants.userStatus.rejected]
     }
 });
 

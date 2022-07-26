@@ -30,7 +30,7 @@ const bcrypt=require("bcryptjs");
 const User=require("../models/user.model");//so the User model that we created we are just importing it
 const jwt=require("jsonwebtoken");
 const authConfig=require("../configs/auth.config");
-
+const constants=require("../utils/constants");
 /*
 So here the Signup and signin logic should be implemented in a function 
 */
@@ -40,10 +40,10 @@ exports.signup=async (req,res)=>{
     /*  
       I need to read the data from the request body that we passed.
     */
-     if(req.body.userType!="CUSTOMER")
+     if(req.body.userType!=constants.userTypes.customer)
      {
         //so the request body that we passed has a userType !=customer(Then it will be Engineer) so for that we want the userStatus to be PENDING ,so the Admin user should change this user status.
-        req.body.userStatus = "PENDING";
+        req.body.userStatus = constants.userStatus.pending;
 
      }
     /*  

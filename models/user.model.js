@@ -38,13 +38,13 @@ const userSchema=new mongoose.Schema({//so this mongoose.Schema is another objec
     userType : {
         type : String,
         required : true,
-        default : constants.userTypes.customer,
-        enum : [constants.userTypes.customer,constants.userTypes.admin,constants.userTypes.engineer]
+        default : "Customer"
+       // enum : [constants.userTypes.customer,constants.userTypes.admin,constants.userTypes.engineer]
     },
     userStatus : {
         type : String,
         required : true,
-        default : constants.userStatus.approved
+        default : "Approved"
        // enum : [constants.userStatus.approved,constants.userStatus.pending,constants.userStatus.rejected]
     }
 });

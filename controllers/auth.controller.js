@@ -28,13 +28,16 @@ And for each User type there are certain user Status allocated for them
 */ 
 const bcrypt=require("bcryptjs");
 const User=require("../models/user.model");//so the User model that we created we are just importing it
+const jwt=require("jsonwebtoken");
+const authConfig=require("../configs/auth.config");
+
 /*
 So here the Signup and signin logic should be implemented in a function 
 */
 
 exports.signup=async (req,res)=>{
     //so when a user is trying to register we try to execute this method.
-    /*
+    /*  
       I need to read the data from the request body that we passed.
     */
      if(req.body.userType!="CUSTOMER")
@@ -51,18 +54,14 @@ exports.signup=async (req,res)=>{
         userId:req.body.userId,
         email:req.body.email,
         userType:req.body.userType,
-        password:bcrypt.hashSync(req.body.password,8),//so the 8 (length) it is the cost factor that it figures out the length of the hashed string if its length is more then the security & space will also increase,if its less then security&space will also go down.
-        userStatus:req.body.userStatus
+        password:bcrypt.hashSync(req.body.password,8)//so the salt can be either string or it can be a number which will be contributing to the strength of the hashed string (if the length increases the strenght also increase)
      }
-     
-
     /*
       Then we insert the data and return the response.
     */
    try{
     const userCreated=await User.create(userObj);//this create function is done asyncronously
     //here we need to return the newly created user as a responce.(Without password,_v,,_id fields)
-
     const response={ //so we are just creating our own responce object
         name:userCreated.name,
         userId:userCreated.userId,
@@ -73,7 +72,6 @@ exports.signup=async (req,res)=>{
         updatedAt:userCreated.updatedAt
     }
     res.status(201).send(response);
-
    }
    catch(err){
     console.log(err.message)
@@ -81,4 +79,52 @@ exports.signup=async (req,res)=>{
    }
   
     
+}
+
+exports.signin=async (req,res)=>{
+  try{
+    //If the userId passed is correct
+    const user=await User.findOne({userId:req.body.userId});//so the userId that is passed in body should already exist for some user
+
+    if(user==null)
+    {
+      //400 means user not found
+      return res.status(400).send({message:"User not found with the given userId"});
+    }
+
+   //If the password is matching with the respective userId info
+    const passwordIsValid=bcrypt.compareSync(req.body.password,user.password);
+    if(passwordIsValid==false)
+    {
+      //401 is unauthorized
+       return res.status(401).send({message:"The password is not correct"})
+    }
+
+   //Create the JWT token
+
+    const token=jwt.sign({//so generally to generate a token we need to pass id(which should be public information) and secret data, The time of expiration
+      id:user.userId//so generally in the jwt token we need to pass the info which is public ,and not private information like password(as this token can be decrypted)
+    },
+    authConfig.secret,//so when someone decrypted the token they can see the id part but not the secretKey part(even the secret key is used to build the token)
+    {
+        expiresIn:600
+    }
+    )
+   //Send the succesfful login response 
+   res.status(200).send({
+    name:user.name,
+    userId:user.userId,
+    email:user.email,
+    userType:user.userType,
+    userStatus:user.userStatus,
+    accessToken:token
+   });
+
+  }
+  catch(err){
+    res.status(500).send({message:err.message});
+  }   
+
+
+
 }

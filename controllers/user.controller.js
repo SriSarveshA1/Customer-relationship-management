@@ -31,3 +31,48 @@ exports.findAll=async (req,res)=>{
    }
    
 }
+
+//This method will return the user details using the id passed in parm 
+exports.findByUserId=async (req,res)=>{
+
+   try{
+      const user=await User.find({userId:req.params.id});
+      //so the user will be having an [] but only one object which is having multiple properties that are not useful ,so we need to retrive only the useful properties
+      var obj=ObjectConverter.userResponce(user);
+      return res.status(200).send(obj);
+   }
+   catch(err)
+   {
+      res.status(500).send({message:err.message})
+   }
+  
+}
+
+exports.update=async (req,res)=>{
+   //So the user info on which we want to perform updation the userId needs to be in the parameter.
+
+   try{
+     const user=await User.findOne({userId:req.params.id});
+     //so we can make certain user details to be updated
+     //userStatus,name,userType
+     //so if these fields are provided in the body then we update them or else we keep the old values.
+     user.userStatus =req.body.userStatus != undefined ? req.body.userStatus:user.userStatus;
+     user.name=req.body.name != undefined ? req.body.name:user.name;
+     user.userType=req.body.userType != undefined ? req.body.userType:user.userType;
+
+     const updatedUser=await user.save();//db operation to update/save the updated changes
+     console.log(updatedUser)
+     var obj={
+      name:updatedUser.name,
+      userId:updatedUser.userId,
+      email:updatedUser.email,
+      userType:updatedUser.userType,
+      userStatus:updatedUser.userStatus
+     }
+     return res.status(200).send(obj);
+
+   }
+   catch(err){
+      return res.status(500).send({message:err.message})
+   }
+}

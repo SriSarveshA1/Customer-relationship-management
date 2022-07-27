@@ -29,7 +29,7 @@ const verifyToken=(req,res,next) => {
 const isAdmin=async (req,res,next) => {
         //req.userId contains the userId that we retrived from the token.
        
-       const user=await User.findOne({userId:req.userId});
+       const user=await User.find({userId:req.userId});
        if(user&&(user.userType == constants.userTypes.admin))
        {
             next();
@@ -38,7 +38,43 @@ const isAdmin=async (req,res,next) => {
          return res.status(403).send({message:"You are unauthorized to perform this action"})
        }
 }
+
+const isValidUserIdInReqParams = async (req,res,next)=>{
+      try{
+           const user=await User.find({userId:req.params.id});
+           if(!user)
+           {
+              return  res.status(400).send({message: 'User Id passed is not found'})
+           }
+           else{
+            next();
+           }
+      }
+      catch(err){
+        res.status(500).send({message:err.message});
+      }
+}
+
+const isAdminOrOwner=async (req,res,next)=>{
+    try{
+        const user=await User.findOne({userId:req.params.id});
+        const loggedInUser=await User.findOne({userId:req.userId});  
+      
+        if((loggedInUser.userType==constants.userTypes.admin)||(user.userId==req.params.id))
+        {
+            next();
+        }
+        else{
+          return res.status(403).send({message:"You are unauthorized to perform this action only admin or owner of this userId can do this action"});
+        }
+    }
+    catch(err){
+        return res.status(500).send({message:err.message});
+    }
+}
 module.exports={
     verifyToken,
-    isAdmin
+    isAdmin,
+    isValidUserIdInReqParams,
+    isAdminOrOwner
 }

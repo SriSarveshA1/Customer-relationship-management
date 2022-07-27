@@ -54,6 +54,7 @@ exports.signup=async (req,res)=>{
         userId:req.body.userId,
         email:req.body.email,
         userType:req.body.userType,
+        userStatus:req.body.userStatus,
         password:bcrypt.hashSync(req.body.password,8)//so the salt can be either string or it can be a number which will be contributing to the strength of the hashed string (if the length increases the strenght also increase)
      }
     /*
@@ -90,6 +91,12 @@ exports.signin=async (req,res)=>{
     {
       //400 means user not found
       return res.status(400).send({message:"User not found with the given userId"});
+    }
+
+    //Check the user status if its PENDING then we dont allow them to login.
+    if(user.userStatus==constants.userStatus.pending)
+    {
+      return res.status(403).send({message:"The user is in pending status so not allowed to login (needed to be approved from the admin)"});
     }
 
    //If the password is matching with the respective userId info

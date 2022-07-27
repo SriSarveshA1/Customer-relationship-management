@@ -70,6 +70,8 @@ async function init(){//This init() function will be called whenever the server 
 //We need to connect router to the server
 require("./routes/auth.route")(app);
 
+require("./routes/user.route")(app);
+
 
 
 app.listen(serverConfig.PORT,()=>{

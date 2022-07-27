@@ -20,6 +20,7 @@ exports.findAll=async (req,res)=>{
       queryObj.userStatus=userStatusQP;
    }
    try{
+      //so if the both the query param is not passed the queryObj={} 
     const users=await User.find(queryObj);//so since we are not passing any conditions all the users will be retrived and it will be stored in the users.
 
      res.status(200).send(ObjectConverter.userResponce(users));

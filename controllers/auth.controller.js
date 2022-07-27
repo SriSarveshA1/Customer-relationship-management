@@ -107,7 +107,7 @@ exports.signin=async (req,res)=>{
     },
     authConfig.secret,//so when someone decrypted the token they can see the id part but not the secretKey part(even the secret key is used to build the token)
     {
-        expiresIn:600
+        expiresIn:60000
     }
     )
    //Send the succesfful login response 

@@ -61,3 +61,30 @@ exports.createTicket=async (req,res)=>{
     }
    
 }
+//Getting all the tickets.
+exports.getAllTickets=async (req,res)=>{
+    //so we need to find the userType depending on that we need to frame the search query
+
+    const user=await User.findOne({userId:req.userId});
+    const queryObj={};
+
+    if(user.userType==constants.userTypes.customer)
+    {
+        //querying for fetching all the tickets created by the user alone
+        const ticketsCreated = await User.ticketsCreated;//so from the db we are retriving the array length so it is async process
+        if(!ticketsCreated)
+        {
+            //if this particular user doesn't raise any ticket then this array will be empty and
+            return res.status(200).send({message:"No tickets were created by this user"});
+        }
+        queryObj["_id"]={$in:ticketsCreated};//so which means the we want { _id : { $in: ticketsCreated } } so the ticketsCreated has list of _id's and we are just trying to query and get the tickets from the collection which has _id "in" the array
+       
+    }
+    else{
+        if(user.userType==constants.userTypes.engineer)
+        {
+            //query object for fetching all the tickets created by the user and assigned to the user.
+        }
+    }
+    const tickets=await Ticket.find(queryObj);
+}

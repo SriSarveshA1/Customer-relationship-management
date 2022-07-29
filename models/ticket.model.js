@@ -21,7 +21,7 @@ const ticketSchema=new mongoose.Schema({
         default:constants.ticketStatus.open,
         enum:[constants.ticketStatus.open,constants.ticketStatus.closed,constants.ticketStatus.blocked]
     },
-    reporter:{//says which user has raised this ticket
+    reporter:{//says which user has raised this ticket it can be customer,Engineer,Admin (All has the the user schema)
         type:String,
         required:true
     },

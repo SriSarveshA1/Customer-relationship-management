@@ -11,6 +11,7 @@ const User=require("../models/user.model");
 const Ticket=require("../models/ticket.model");
 const constants=require("../utils/constants");
 
+
 exports.createTicket=async (req,res)=>{
     //read from the request body and create the ticket object
 
@@ -67,6 +68,8 @@ exports.getAllTickets=async (req,res)=>{
 
     const user=await User.findOne({userId:req.userId});
     const queryObj={};
+    const ticketsCreated=user.ticketCreated;
+    const ticketsAssigned=user.ticketAssigned;
 
     if(user.userType==constants.userTypes.customer)
     {
@@ -77,14 +80,19 @@ exports.getAllTickets=async (req,res)=>{
             //if this particular user doesn't raise any ticket then this array will be empty and
             return res.status(200).send({message:"No tickets were created by this user"});
         }
-        queryObj["_id"]={$in:ticketsCreated};//so which means the we want { _id : { $in: ticketsCreated } } so the ticketsCreated has list of _id's and we are just trying to query and get the tickets from the collection which has _id "in" the array
-       
+        queryObj["_id"]={ $in : ticketsCreated };//so which means the we want { _id : { $in: ticketsCreated } } so the ticketsCreated has list of _id's and we are just trying to query and get the tickets from the collection which has _id "in" the array
+        
     }
     else{
         if(user.userType==constants.userTypes.engineer)
         {
             //query object for fetching all the tickets created by the user and assigned to the user.
+            //so we want the ids which are either in the ticketsCreated array or in the ticketsAssigned array.
+            queryObj["$or"]=[{"_id" : { $in : ticketsCreated } },{ "_id" : { $in : ticketsAssigned } } ];
+
         }
     }
+    //for the userType admin the queryObj={} empty which will retrive all the tickets that is been created.
     const tickets=await Ticket.find(queryObj);
+    res.status(200).send(tickets);
 }

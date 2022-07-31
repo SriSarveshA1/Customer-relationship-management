@@ -29,13 +29,19 @@ const verifyToken=(req,res,next) => {
 const isAdmin=async (req,res,next) => {
         //req.userId contains the userId that we retrived from the token.
        
-       const user=await User.find({userId:req.userId});
-       if(user&&(user.userType == constants.userTypes.admin))
+       const user=await User.findOne({userId:req.userId});
+       if(!user)
+       {
+        return res.status(403).send({message:"No user exists with the given token"})
+
+       }
+       console.log(user);
+       if(user.userType == constants.userTypes.admin)
        {
             next();
        }
        else{
-         return res.status(403).send({message:"You are unauthorized to perform this action"})
+         return res.status(403).send({message:"You are unauthorized to perform this action you are not an admin"})
        }
 }
 

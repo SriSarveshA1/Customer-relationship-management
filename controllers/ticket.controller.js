@@ -54,7 +54,7 @@ exports.createTicket=async (req,res)=>{
             await engineer.save();//then we try to save the updated change
         }
       
-        res.status(201).send(ticketObj);
+        res.status(201).send(ticketCreated);
        }
     }
     catch(err){
@@ -66,33 +66,64 @@ exports.createTicket=async (req,res)=>{
 exports.getAllTickets=async (req,res)=>{
     //so we need to find the userType depending on that we need to frame the search query
 
-    const user=await User.findOne({userId:req.userId});
-    const queryObj={};
-    const ticketsCreated=user.ticketCreated;
-    const ticketsAssigned=user.ticketAssigned;
-
-    if(user.userType==constants.userTypes.customer)
-    {
-        //querying for fetching all the tickets created by the user alone
-        const ticketsCreated = await User.ticketsCreated;//so from the db we are retriving the array length so it is async process
-        if(!ticketsCreated)
+    try{
+        const user=await User.findOne({userId:req.userId});
+        const queryObj={};
+        const ticketsCreated=user.ticketCreated;
+        const ticketsAssigned=user.ticketAssigned;
+    
+        if(user.userType==constants.userTypes.customer)
         {
-            //if this particular user doesn't raise any ticket then this array will be empty and
-            return res.status(200).send({message:"No tickets were created by this user"});
+            //querying for fetching all the tickets created by the user alone
+            const ticketsCreated = await User.ticketsCreated;//so from the db we are retriving the array length so it is async process
+            if(!ticketsCreated)
+            {
+                //if this particular user doesn't raise any ticket then this array will be empty and
+                return res.status(200).send({message:"No tickets were created by this user"});
+            }
+            queryObj["_id"]={ $in : ticketsCreated };//so which means the we want { _id : { $in: ticketsCreated } } so the ticketsCreated has list of _id's and we are just trying to query and get the tickets from the collection which has _id "in" the array
+            
         }
-        queryObj["_id"]={ $in : ticketsCreated };//so which means the we want { _id : { $in: ticketsCreated } } so the ticketsCreated has list of _id's and we are just trying to query and get the tickets from the collection which has _id "in" the array
+        else{
+            if(user.userType==constants.userTypes.engineer)
+            {
+                //query object for fetching all the tickets created by the user and assigned to the user.
+                //so we want the ids which are either in the ticketsCreated array or in the ticketsAssigned array.
+                queryObj["$or"]=[{"_id" : { $in : ticketsCreated } },{ "_id" : { $in : ticketsAssigned } } ];
+    
+            }
+        }
+        //for the userType admin the queryObj={} empty which will retrive all the tickets that is been created.
+        const tickets=await Ticket.find(queryObj);
+        res.status(200).send(tickets);
+    }
+    catch(err) {
+        res.status(500).send({message: err.message});
+    }
+}
+
+/*
+  Update the ticket 
+*/
+exports.updateTicket=async (req,res)=>{
+    try{
+        const ticket=await Ticket.findOne({"_id":req.params.id});
+
+        //update the ticket object based on the request body
+        ticket.title=(req.body.title==undefined)?ticket.title:req.body.title;
+        ticket.description=(req.body.description==undefined)?ticket.description:req.body.description;
+
+        ticket.ticketPriority=(req.body.ticketPriority==undefined)?ticket.ticketPriority:req.body.ticketPriority;
         
+        ticket.status=(req.body.status==undefined)?ticket.status:req.body.status;
+        //So only the ADMIN can change the ticket assignee (Even this needs to be taken care in the middleware)
+        ticket.assignee=(req.body.assignee==undefined)?ticket.assignee:req.body.assignee;
+    
+       const updatedTicket= await ticket.save();//this will save the updation.
+       res.status(200).send(updatedTicket);
     }
-    else{
-        if(user.userType==constants.userTypes.engineer)
-        {
-            //query object for fetching all the tickets created by the user and assigned to the user.
-            //so we want the ids which are either in the ticketsCreated array or in the ticketsAssigned array.
-            queryObj["$or"]=[{"_id" : { $in : ticketsCreated } },{ "_id" : { $in : ticketsAssigned } } ];
-
-        }
+    catch(err) {
+        res.status(500).send({message:err.message});
     }
-    //for the userType admin the queryObj={} empty which will retrive all the tickets that is been created.
-    const tickets=await Ticket.find(queryObj);
-    res.status(200).send(tickets);
+   
 }

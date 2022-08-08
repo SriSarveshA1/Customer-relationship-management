@@ -8,5 +8,7 @@
 }
 
 module.exports = {
-    PORT : process.env.PORT
+    PORT : process.env.PORT,
+    NOTISERVE_LINK: process.env.NOTISERVE_LINK
+
 }

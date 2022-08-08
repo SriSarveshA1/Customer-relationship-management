@@ -22,10 +22,10 @@ db.on("error",()=>{
    console.log("Error while connecting to the Mongodb")
 });
 //once is used to listen to the connection event.
-db.once("open",()=>{
+db.once("open",async ()=>{
     //when the connection to the mongodb is opened.
     console.log("Connected to Mongodb")
-    
+   
     init();//so once the mongodb is connected we need to create this user
 });
 
@@ -38,7 +38,9 @@ async function init(){//This init() function will be called whenever the server 
     /*
        check if there is already a user who is admin (we want only one admin to be present).
     */
-    let user=await User.find({userId:"admin"});
+   
+    let user=await User.findOne({userId:"admin"});
+    
     if(user){
      //if the user is already present(this user will be having some value);
      console.log("ADMIN user is already present");

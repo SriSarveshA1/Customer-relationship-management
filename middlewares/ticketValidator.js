@@ -75,6 +75,8 @@ const isValidOwnerOftheTicket=async (req,res,next)=>{
         }
     }
 }
+
+
 module.exports ={
     isValidOwnerOftheTicket
 }

@@ -11,7 +11,8 @@
         //so we create the requestBody and the header here
         const requestBody={
             subject:subject,
-            recipientEmails:recipients,
+            recepientEmails:recipients,
+            
             content:content,
             requester:requester
         };

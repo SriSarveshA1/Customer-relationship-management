@@ -24,14 +24,34 @@ exports.createTicket=async (req,res)=>{
         status:req.body.status,
         reporter:req.userId//so the person who is logged in into the application (from the token we get the persons userId which is stored in the request)
     };
+    console.log(ticketObj)
     //Find the Engineer available and attach to the ticket object
     //so we need to find the engineer who is in the "APPROVED" state
     try{
-        const engineer =await User.findOne({
+        let engineer =await User.find({
             userStatus:constants.userStatus.approved
            ,userType:constants.userTypes.engineer
-        });
+        });//so this engineer will be having an array of Engineers who is in APPROVED status to accept the ticket request
+       
+        console.log(engineer)
+        engineer=engineer.sort((a,b)=>{
+           //a is Engineer ,b is Engineer
+           if(a.ticketsAssigned.length==b.ticketsAssigned.length)
+           {
+            return 0;
+           }
+          if(a.ticketsAssigned.length>b.ticketsAssigned.length)
+          {
+            return 1;
+          }
+          else{
+            return -1;
+          }
+         
+        })[0];//so we have sorted the array based on the length of ticketsAssigned array.
         
+       
+        console.log("ssssssssssssssss= "+engineer[0])
         if(engineer)
         {
             ticketObj.assignee=engineer.userId;//so for the ticket that we created we assign the engineer who is available
@@ -60,6 +80,7 @@ exports.createTicket=async (req,res)=>{
        }
     }
     catch(err){
+        console.log("sdsd")
         res.status(500).send({message: err.message});
     }
    

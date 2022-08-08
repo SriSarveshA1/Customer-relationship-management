@@ -10,6 +10,8 @@
 const User=require("../models/user.model");
 const Ticket=require("../models/ticket.model");
 const constants=require("../utils/constants");
+//so this particular file is used to send the POST request the notification app.
+const notificationClient=require("../utils/notificationClient");
 
 
 exports.createTicket=async (req,res)=>{
@@ -53,7 +55,7 @@ exports.createTicket=async (req,res)=>{
             engineer.ticketsAssigned.push(ticketCreated._id);
             await engineer.save();//then we try to save the updated change
         }
-      
+        notificationClient(`The ticket has been successfully created with id ${ticketCreated._id}`,`Customer with userId ${ticketObj.reporter} complaint has been registered`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester for the notification service to send the mail
         res.status(201).send(ticketCreated);
        }
     }
@@ -95,6 +97,7 @@ exports.getAllTickets=async (req,res)=>{
         }
         //for the userType admin the queryObj={} empty which will retrive all the tickets that is been created.
         const tickets=await Ticket.find(queryObj);
+        
         res.status(200).send(tickets);
     }
     catch(err) {
@@ -120,6 +123,14 @@ exports.updateTicket=async (req,res)=>{
         ticket.assignee=(req.body.assignee==undefined)?ticket.assignee:req.body.assignee;
     
        const updatedTicket= await ticket.save();//this will save the updation.
+       
+       const customer=await User.findOne({userId:ticket.reporter});//This customer object  will be holding the user who is the reporter of this ticket
+
+       const engineer=await User.findOne({userId:ticket.assignee});//this engineer object will be holding the user who is the assignee of this ticket(The engineer to whom we assigned the ticket)
+
+
+       notificationClient(`The ticket with id ${ticketCreated._id} has been successfully updated`,`Ticket has been successfully updated`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester
+       
        res.status(200).send(updatedTicket);
     }
     catch(err) {

@@ -75,7 +75,7 @@ exports.createTicket=async (req,res)=>{
             engineer.ticketsAssigned.push(ticketCreated._id);
             await engineer.save();//then we try to save the updated change
         }
-        notificationClient(`The ticket has been successfully created with id ${ticketCreated._id}`,`Customer with userId ${ticketObj.reporter} complaint has been registered`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester for the notification service to send the mail
+        notificationClient(`The ticket has been successfully created with id ${ticketCreated._id}`,`Customer with userId ${ticketObj.reporter} complaint has been registered with the description : ${ticketObj.description} and the priority of the ticket is ${ticketObj.priority}`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester for the notification service to send the mail
         res.status(201).send(ticketCreated);
        }
     }

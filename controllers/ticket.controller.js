@@ -129,7 +129,7 @@ exports.updateTicket=async (req,res)=>{
        const engineer=await User.findOne({userId:ticket.assignee});//this engineer object will be holding the user who is the assignee of this ticket(The engineer to whom we assigned the ticket)
 
 
-       notificationClient(`The ticket with id ${ticketCreated._id} has been successfully updated`,`Ticket has been successfully updated`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester
+       notificationClient(`The ticket with id ${ticket._id} has been successfully updated`,`Ticket has been successfully updated`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester
        
        res.status(200).send(updatedTicket);
     }

@@ -1,7 +1,7 @@
     const Client=require("node-rest-client").Client;//so we are requiring the Client object from the node-rest-client
     
     const client=new Client();//new object of this Client
-    const NOTISERVE_LINK=require("../configs/server.config");
+    const NOTISERVE_LINK=require("../configs/server.config");//so here the link where the notification service application is being hosted
     
 /**
  * Exposing a method which takes the request parameters for sending the

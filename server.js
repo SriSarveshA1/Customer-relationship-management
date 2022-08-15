@@ -76,6 +76,9 @@ require("./routes/user.route")(app);
 
 require("./routes/ticket.route")(app);
 
+app.use((req,res)=>{
+    res.status(404).send({message:"Requested End point is not present"});
+})
 
 app.listen(serverConfig.PORT,()=>{
     console.log("Started on the server port "+serverConfig.PORT);

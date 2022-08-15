@@ -126,12 +126,23 @@ exports.getAllTickets=async (req,res)=>{
     }
 }
 
+const removeTheAssignedTicket=async (engineer,id)=>{
+
+    const index = engineer.ticketsAssigned.indexOf(id);//so finding the index of the _id of the ticket
+    if(index>-1)
+    {
+        engineer.ticketsAssigned.splice(index,1);//so we need remove this particular element(ticket _id) from the array of tickets assigned
+    }
+    await engineer.save();
+}
 /*
   Update the ticket 
 */
 exports.updateTicket=async (req,res)=>{
     try{
         const ticket=await Ticket.findOne({"_id":req.params.id});
+
+        let oldAssignedEngineer=ticket.assignee;
 
         //update the ticket object based on the request body
         ticket.title=(req.body.title==undefined)?ticket.title:req.body.title;
@@ -144,11 +155,20 @@ exports.updateTicket=async (req,res)=>{
         ticket.assignee=(req.body.assignee==undefined)?ticket.assignee:req.body.assignee;
     
        const updatedTicket= await ticket.save();//this will save the updation.
+
        
        const customer=await User.findOne({userId:ticket.reporter});//This customer object  will be holding the user who is the reporter of this ticket
 
-       const engineer=await User.findOne({userId:ticket.assignee});//this engineer object will be holding the user who is the assignee of this ticket(The engineer to whom we assigned the ticket)
+       let engineer=await User.findOne({userId:ticket.assignee});//this engineer object will be holding the user who is the assignee of this ticket(The engineer to whom we assigned the ticket)
 
+        /*so if while updating the ticket if the customer who raised the ticket or the engineer to whom the ticket is assigned or the admin if any of them wants to change the status of the ticket from OPEN to CLOSED then
+      we want that particular ticket to be removed from the assigned tickets of that engineer.
+        Or if the newly assigned engineer is different from the old engineer
+      */
+       if((ticket.status==constants.ticketStatus.closed)||(oldAssignedEngineer!=req.body.assignee))
+       {
+        removeTheAssignedTicket(engineer,req.params.id);
+       }
 
        notificationClient(`The ticket with id ${ticket._id} has been successfully updated`,`Ticket has been successfully updated`,`${customer.email},${engineer.email},r.srisarvesh@gmail.com`,"CRM APP");//"CRM APP" is the requester
        
